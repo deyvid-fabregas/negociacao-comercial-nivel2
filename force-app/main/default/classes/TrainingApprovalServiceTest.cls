@@ -104,14 +104,20 @@ private class TrainingApprovalServiceTest {
         }
         System.assert(thrown);
 
+        // O resolvedor lê atribuições reais de Permission Set (dados de setup): o resultado esperado depende da org.
+        Integer financeiroAssignees = [
+            SELECT COUNT() FROM PermissionSetAssignment
+            WHERE PermissionSet.Name = 'Training_Aprovador_Financeiro' AND Assignee.IsActive = true
+        ];
         thrown = false;
         try {
-            TrainingApproverResolver.resolve('Financeiro');
+            Id approverId = TrainingApproverResolver.resolve('Financeiro');
+            System.assertNotEquals(null, approverId);
         } catch (TrainingException e) {
             thrown = true;
             System.assert(e.getMessage().contains('Nenhum aprovador ativo'));
         }
-        System.assert(thrown);
+        System.assertEquals(financeiroAssignees == 0, thrown);
     }
 
     // US-04 CA02: rejeicao sem motivo e bloqueada; com motivo persiste

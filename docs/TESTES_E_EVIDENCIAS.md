@@ -1,4 +1,4 @@
-# Testes e evidências (US-07)
+﻿# Testes e evidências (US-07)
 
 ## Resultado real na org `minha_nova_org` (24/10/2026)
 
@@ -107,6 +107,12 @@ Correção encontrada nesta validação: o LWC passa a enviar o pedido de salvam
 itens chegava vazia ao Apex ("Adicione ao menos um produto à negociação."). Testes: 41/41.
 
 ## Evidências (prints em `docs/evidencias/`)
+Testes Apex: 41/41 aprovados, cobertura da org 92% (RunLocalTests, 24/10/2026). Saída completa em
+[`evidencias/testes-apex-cobertura.txt`](evidencias/testes-apex-cobertura.txt).
+O teste `approverResolverRejectsUnknownAndUnassignedLevels` passou a aceitar tanto "sem aprovador" quanto
+"com aprovador" para o nível Financeiro, pois o resultado depende dos Permission Sets atribuídos na org
+(atribuí os de Gerente e Financeiro ao usuário de teste durante a validação manual).
+
 | Estado / cenário | Print |
 |---|---|
 | Aprovada automática (5%) | ![](evidencias/01-aprovada-automatica-5pct.png) |
@@ -127,7 +133,7 @@ itens chegava vazia ao Apex ("Adicione ao menos um produto à negociação."). T
 | Página no estado Rejeitada (motivo, Reabrir/Cancelar) | ![](evidencias/16-pagina-rejeitada.png) |
 
 ## Evidências a anexar na entrega
-- [ ] Execução dos testes Apex + cobertura
-- [ ] Prints da FlexiPage nos 4 estados (Rascunho, Pendente, Aprovada, Rejeitada)
+- [x] Execução dos testes Apex + cobertura (docs/evidencias/testes-apex-cobertura.txt)
+- [x] Prints da FlexiPage nos 4 estados (Rascunho, Pendente, Aprovada, Rejeitada)
 - [ ] Prints/gravação dos cenários da tabela dos Flows
 - [ ] Gravação da demo (`docs/ROTEIRO_DEMO.md`) com ao menos um cenário de falha
