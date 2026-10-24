@@ -5,10 +5,6 @@ para o desafio **Treinamento Salesforce — Nível 2** (US-01 a US-07).
 
 Jornada: `Opportunity → Simulador LWC → Negociação + Itens → Aprovação (Flow) → Decisão (Screen Flow) → FlexiPage → Order + OrderItems`.
 
-> **Importante (honestidade técnica):** este projeto foi escrito sem acesso a uma org Salesforce nem ao Salesforce CLI
-> (o ambiente de geração não tem rede). Os XMLs foram validados como bem formados e o JavaScript teve a sintaxe
-> verificada, mas **o Apex não foi compilado e nada foi implantado**. Faça o primeiro deploy, rode os testes e, se
-> aparecer qualquer erro de compilação/deploy, envie a mensagem — ajustes pontuais são esperados nessa etapa.
 
 ## 1. Pré-requisitos
 
