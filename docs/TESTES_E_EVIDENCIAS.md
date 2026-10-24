@@ -93,6 +93,9 @@ Validação: **Flow Debug** informando `recordId` de uma negociação Pendente +
 | Simulador, 6% sem aprovador Gerente | Bloqueado: "Nenhum aprovador ativo foi encontrado para o nível Gerente" |
 | Simulador, 6% após atribuir `Training_Aprovador_Gerente` | NEG-0008 Pendente, nível Gerente, valor final R$ 75.200,00 |
 | Simulador, 12% | NEG-0007 Pendente, nível Diretor |
+| Simulador, 20% | NEG-0010 Pendente, nível Diretor (a faixa do Diretor vai até 20%) |
+| Simulador, 25% | NEG-0011 Pendente, nível Financeiro, valor final R$ 54.375,00 |
+| Rascunho | NEG-0009 em Rascunho, botões Editar no simulador / Enviar / Cancelar; ao enviar com 4% foi Aprovada automaticamente |
 | Rejeitar sem motivo (Screen Flow) | Bloqueado: campo obrigatório |
 | Rejeitar com motivo | NEG-0007 rejeitada com sucesso |
 | Reabrir, ciclo 2, aprovar | NEG-0007 Aprovada, ciclo 2 |
