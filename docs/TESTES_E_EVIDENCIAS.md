@@ -2,10 +2,12 @@
 
 ## Resultado real na org `minha_nova_org` (24/10/2026)
 
-- Deploy: **85 componentes implantados**; a FlexiPage `Negociacao_Comercial_Record_Page` foi excluída porque a validação do Salesforce rejeitou seu XML Dynamic Forms. A página e seu action override precisam ser configurados no Lightning App Builder antes de definir a página padrão.
-- Testes Apex (`RunLocalTests`): **40 executados, 40 aprovados, 0 falhas**. Cobertura global da org: **92%**.
+As observações de que a validação de preço e a FlexiPage estariam pendentes referem-se a uma versão anterior do projeto. Nesta versão publicada, ambas foram implementadas, implantadas e verificadas conforme as evidências abaixo.
+
+- Deploy inicial: **85 componentes implantados**, sem a FlexiPage de Negociação. Depois disso, `Negociacao_Comercial_Record_Page` foi criada/salva e ativada no Lightning App Builder como padrão da org para Desktop e Phone; o metadata foi recuperado para o projeto e o `View` override do objeto aponta para ela nos form factors Large e Small.
+- Testes Apex (`RunLocalTests`): **42 executados, 42 aprovados, 0 falhas**. Cobertura global da org: **92%**. A saída da última execução está em `docs/evidencias/testes-apex-cobertura.txt`.
 - Os dois Flows foram confirmados como **Active**, versão 1: `Negociacao_Roteamento_Aprovacao` e `Negociacao_Decisao_Aprovacao`.
-- Permission Sets `Training_Vendedor` e `Training_Aprovador_Diretor` atribuídos ao usuário autenticado.
+- Permission Sets `Training_Vendedor`, `Training_Aprovador_Gerente`, `Training_Aprovador_Diretor` e `Training_Aprovador_Financeiro` atribuídos ao usuário autenticado para os testes manuais.
 - Standard Price Book ativado; seed criou 5 produtos/entradas ativas e a Opportunity `006ak00000fxAyHAAU`.
 
 ### Cobertura por classe de produção
@@ -39,16 +41,22 @@
 | 4% | **PASS** — Aprovada automaticamente, sem Task |
 | 12% + justificativa | **PASS** — Pendente, nível Diretor; permaneceu exatamente 1 Task após salvar novamente |
 | Decisão repetida | **PASS** — bloqueada com “Esta negociação já foi resolvida” |
+| Insert direto com preço adulterado (`R$ 1` em vez do preço do catálogo) | **PASS** — bloqueado pela Trigger; teste `directDmlEnforcesActiveOpportunityPricebookPrice` |
+| Update direto com preço adulterado | **PASS** — bloqueado pela Trigger; preço persistido permanece inalterado |
+| 200 inserts diretos com preço adulterado | **PASS** — todos os itens rejeitados pela Trigger; teste `bulkDirectDmlRejectsForgedCatalogPrices` |
+| Item sem entrada ativa no Pricebook da Opportunity | **PASS** — bloqueado pela Trigger |
+| 200 itens inseridos em massa | **PASS** — totais recalculados dentro dos limites; sem SOQL em loop |
 | Alterar item de negociação aprovada via DML | **PASS** — bloqueado pela validação da Trigger |
 | Gerar Order duas vezes | **PASS** — as duas chamadas retornaram o mesmo Order; 1 registro no total |
 
-Os roteiros acima foram executados por Execute Anonymous e os resultados foram observados no log da org. A verificação visual da FlexiPage continua pendente no Lightning App Builder.
+Os testes de DML direto são testes Apex automatizados (o DML passa pela mesma Trigger usada por API/Data Loader). Os cenários funcionais foram conferidos na interface. A FlexiPage foi validada visualmente nos estados Rascunho, Pendente, Aprovada e Rejeitada; os prints estão na seção Evidências.
 
 ### Revalidação da integridade de preços (24/10/2026)
 
-- O handler de itens agora exige uma entrada ativa do Pricebook da Opportunity e rejeita preço unitário divergente em DML direto.
-- Validação Salesforce em modo `check-only`: **41 testes executados, 0 falhas** (`TrainingNegotiationTriggerTest`, `TrainingNegotiationServiceTest`, `TrainingApprovalServiceTest` e `TrainingOrderServiceTest`).
-- Esta validação não implantou as alterações na org. A correção permanece local até um deploy posterior.
+- `TrainingNegotiationItemHandler` exige uma entrada ativa do Pricebook da Opportunity (ou do Standard Price Book quando a Opportunity não tem um Pricebook explícito) e rejeita preço unitário divergente em insert/update direto.
+- A validação é bulkificada: consulta pais e entradas de Pricebook em coleções, sem SOQL dentro de loops.
+- O teste `directDmlEnforcesActiveOpportunityPricebookPrice` tenta insert e update com preço adulterado e também um produto sem entrada ativa no Pricebook; os três casos são bloqueados. `bulkDirectDmlRejectsForgedCatalogPrices` tenta inserir 200 itens com preço adulterado e confirma que todos são rejeitados; `bulk200ItemsRecalculateWithinLimits` cobre 200 itens com preço correto.
+- Correção implantada na org e validada com `RunLocalTests`: **42/42 testes aprovados**, cobertura global de **92%**.
 
 ## Apex
 ```bash
@@ -104,10 +112,10 @@ Validação: **Flow Debug** informando `recordId` de uma negociação Pendente +
 
 Correção encontrada nesta validação: o LWC passa a enviar o pedido de salvamento como JSON
 (`TrainingNegotiationController.saveNegotiation(String requestJson, Boolean submit)`), pois a lista de
-itens chegava vazia ao Apex ("Adicione ao menos um produto à negociação."). Testes: 41/41.
+itens chegava vazia ao Apex ("Adicione ao menos um produto à negociação."). Testes: 42/42.
 
 ## Evidências (prints em `docs/evidencias/`)
-Testes Apex: 41/41 aprovados, cobertura da org 92% (RunLocalTests, 24/10/2026). Saída completa em
+Testes Apex: 42/42 aprovados, cobertura da org 92% (RunLocalTests, 24/10/2026). Saída completa em
 [`evidencias/testes-apex-cobertura.txt`](evidencias/testes-apex-cobertura.txt).
 O teste `approverResolverRejectsUnknownAndUnassignedLevels` passou a aceitar tanto "sem aprovador" quanto
 "com aprovador" para o nível Financeiro, pois o resultado depende dos Permission Sets atribuídos na org

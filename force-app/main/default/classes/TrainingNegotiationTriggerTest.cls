@@ -166,6 +166,41 @@ private class TrainingNegotiationTriggerTest {
         System.assert(firstError(outsideCatalog).contains('entrada ativa'), firstError(outsideCatalog));
     }
 
+    @IsTest
+    static void bulkDirectDmlRejectsForgedCatalogPrices() {
+        Opportunity opp = TrainingTestDataFactory.createOpportunity(UserInfo.getUserId());
+        List<Product2> products = TrainingTestDataFactory.createProducts(200, 50);
+        Negociacao_Comercial__c n = TrainingTestDataFactory.createNegotiation(opp.Id, 0, null);
+        Set<Id> productIds = new Map<Id, Product2>(products).keySet();
+        Map<Id, Decimal> catalogPriceByProduct = new Map<Id, Decimal>();
+        for (PricebookEntry entry : [
+            SELECT Product2Id, UnitPrice FROM PricebookEntry
+            WHERE Pricebook2Id = :Test.getStandardPricebookId() AND Product2Id IN :productIds
+                AND IsActive = true AND Product2.IsActive = true
+        ]) {
+            catalogPriceByProduct.put(entry.Product2Id, entry.UnitPrice);
+        }
+
+        List<Item_Negociacao__c> forgedItems = new List<Item_Negociacao__c>();
+        for (Product2 product : products) {
+            forgedItems.add(new Item_Negociacao__c(
+                Negociacao__c = n.Id, Produto__c = product.Id, Quantidade__c = 1,
+                Preco_Unitario__c = catalogPriceByProduct.get(product.Id) + 1
+            ));
+        }
+
+        Test.startTest();
+        Database.SaveResult[] results = Database.insert(forgedItems, false);
+        Test.stopTest();
+
+        System.assertEquals(200, results.size());
+        for (Database.SaveResult result : results) {
+            System.assert(!result.isSuccess(), 'DML em massa não pode aceitar preço adulterado.');
+            System.assert(firstError(result).contains('preço do catálogo'), firstError(result));
+        }
+        System.assertEquals(0, [SELECT COUNT() FROM Item_Negociacao__c WHERE Negociacao__c = :n.Id]);
+    }
+
     // US-02 CA04 + US-07 matriz: alterar item/negociacao apos aprovacao e bloqueado no servidor
     @IsTest
     static void approvedNegotiationIsImmutableOnEveryChannel() {

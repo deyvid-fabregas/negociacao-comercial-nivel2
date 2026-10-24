@@ -3,88 +3,89 @@ Execucao dos testes Apex (RunLocalTests) - minha_nova_org - 24/10/2026
 === Test Results
 TEST NAME                                                                                  OUTCOME  MESSAGE  RUNTIME (MS)
 ─────────────────────────────────────────────────────────────────────────────────────────  ───────  ───────  ────────────
-TrainingApprovalServiceTest.approverResolverRejectsUnknownAndUnassignedLevels              Pass              174         
-TrainingApprovalServiceTest.authorizedApproverApproves                                     Pass              6507        
-TrainingApprovalServiceTest.autoApprovalUpToFivePercent                                    Pass              5037        
-TrainingApprovalServiceTest.autoApproveRefusesHumanLevels                                  Pass              4990        
-TrainingApprovalServiceTest.cancellingPendingClosesTasksAndFreesOpportunity                Pass              4732        
-TrainingApprovalServiceTest.invalidDecisionValueIsRejected                                 Pass              5262        
-TrainingApprovalServiceTest.pendingRoutesToDirectorAndDoesNotDuplicateTask                 Pass              4398        
-TrainingApprovalServiceTest.rejectionRequiresReason                                        Pass              5352        
-TrainingApprovalServiceTest.repeatedDecisionDoesNotDuplicateTransition                     Pass              4590        
-TrainingApprovalServiceTest.resubmissionAfterReviewStartsNewCycle                          Pass              6041        
-TrainingApprovalServiceTest.routingActionAndResolver                                       Pass              4124        
-TrainingApprovalServiceTest.unauthorizedUsersCannotDecide                                  Pass              5629        
-TrainingOrderServiceTest.approvedNegotiationGeneratesOrderWithThreeItems                   Pass              3543        
-TrainingOrderServiceTest.controllerReturnsFriendlyErrorsAndUserWithoutPermissionIsBlocked  Pass              3233        
-TrainingOrderServiceTest.existingOrderFromAnotherTransactionIsReused                       Pass              3010        
-TrainingOrderServiceTest.failureOnThirdItemRollsBackEverything                             Pass              4990        
-TrainingOrderServiceTest.generatingTwiceKeepsASingleOrder                                  Pass              3566        
-TrainingOrderServiceTest.onlyApprovedNegotiationsGenerateOrders                            Pass              2811        
-TrainingNegotiationServiceTest.cancelAndControllerWrappers                                 Pass              4204        
-TrainingNegotiationServiceTest.catalogAndDraftAndMatrixAreAvailable                        Pass              3930        
-TrainingNegotiationServiceTest.editingFollowsStatusRules                                   Pass              5803        
-TrainingNegotiationServiceTest.friendlyMessageHidesTechnicalDetails                        Pass              73          
-TrainingNegotiationServiceTest.invalidRequestsAreBlocked                                   Pass              5583        
-TrainingNegotiationServiceTest.maliciousPayloadDoesNotChangeServerRules                    Pass              3943        
-TrainingNegotiationServiceTest.productOutsideCatalogIsRejected                             Pass              3757        
-TrainingNegotiationServiceTest.remainingControllerMethodsDelegateAndTranslateErrors        Pass              5902        
-TrainingNegotiationServiceTest.saveAndSubmitWithinFivePercentApprovesAutomatically         Pass              5175        
-TrainingNegotiationServiceTest.saveCalculatesTotalsOnServerAndPersists                     Pass              3986        
-TrainingNegotiationServiceTest.submitRequiresJustificationAboveFivePercent                 Pass              4565        
-TrainingNegotiationServiceTest.userWithoutPermissionCannotSave                             Pass              5030        
-TrainingNegotiationTriggerTest.approvedNegotiationIsImmutableOnEveryChannel                Pass              1399        
-TrainingNegotiationTriggerTest.bulk200ItemsRecalculateWithinLimits                         Pass              1166        
-TrainingNegotiationTriggerTest.changingParentRecalculatesBothNegotiations                  Pass              883         
-TrainingNegotiationTriggerTest.deletingLastItemZeroesTotals                                Pass              3931        
-TrainingNegotiationTriggerTest.directDmlEnforcesActiveOpportunityPricebookPrice            Pass              2052        
-TrainingNegotiationTriggerTest.itemValidationsBlockInvalidData                             Pass              1372        
-TrainingNegotiationTriggerTest.onlyOnePendingNegotiationPerOpportunity                     Pass              3889        
-TrainingNegotiationTriggerTest.pendingNegotiationFreezesBusinessFields                     Pass              3366        
-TrainingNegotiationTriggerTest.recalculationHandlesEmptyAndAlreadyCalculatedParents        Pass              814         
-TrainingNegotiationTriggerTest.statusTransitionsAndDirectEditsAreValidated                 Pass              1398        
-TrainingNegotiationTriggerTest.undeleteRestoresTotals                                      Pass              780         
+TrainingApprovalServiceTest.approverResolverRejectsUnknownAndUnassignedLevels              Pass              261
+TrainingApprovalServiceTest.authorizedApproverApproves                                     Pass              4690
+TrainingApprovalServiceTest.autoApprovalUpToFivePercent                                    Pass              4060
+TrainingApprovalServiceTest.autoApproveRefusesHumanLevels                                  Pass              4098
+TrainingApprovalServiceTest.cancellingPendingClosesTasksAndFreesOpportunity                Pass              5842
+TrainingApprovalServiceTest.invalidDecisionValueIsRejected                                 Pass              4808
+TrainingApprovalServiceTest.pendingRoutesToDirectorAndDoesNotDuplicateTask                 Pass              6171
+TrainingApprovalServiceTest.rejectionRequiresReason                                        Pass              5260
+TrainingApprovalServiceTest.repeatedDecisionDoesNotDuplicateTransition                     Pass              5922
+TrainingApprovalServiceTest.resubmissionAfterReviewStartsNewCycle                          Pass              6056
+TrainingApprovalServiceTest.routingActionAndResolver                                       Pass              4257
+TrainingApprovalServiceTest.unauthorizedUsersCannotDecide                                  Pass              5117
+TrainingOrderServiceTest.approvedNegotiationGeneratesOrderWithThreeItems                   Pass              3404
+TrainingOrderServiceTest.controllerReturnsFriendlyErrorsAndUserWithoutPermissionIsBlocked  Pass              3177
+TrainingOrderServiceTest.existingOrderFromAnotherTransactionIsReused                       Pass              2158
+TrainingOrderServiceTest.failureOnThirdItemRollsBackEverything                             Pass              3505
+TrainingOrderServiceTest.generatingTwiceKeepsASingleOrder                                  Pass              2495
+TrainingOrderServiceTest.onlyApprovedNegotiationsGenerateOrders                            Pass              2721
+TrainingNegotiationServiceTest.cancelAndControllerWrappers                                 Pass              3942
+TrainingNegotiationServiceTest.catalogAndDraftAndMatrixAreAvailable                        Pass              3115
+TrainingNegotiationServiceTest.editingFollowsStatusRules                                   Pass              4437
+TrainingNegotiationServiceTest.friendlyMessageHidesTechnicalDetails                        Pass              110
+TrainingNegotiationServiceTest.invalidRequestsAreBlocked                                   Pass              3595
+TrainingNegotiationServiceTest.maliciousPayloadDoesNotChangeServerRules                    Pass              4196
+TrainingNegotiationServiceTest.productOutsideCatalogIsRejected                             Pass              3902
+TrainingNegotiationServiceTest.remainingControllerMethodsDelegateAndTranslateErrors        Pass              5121
+TrainingNegotiationServiceTest.saveAndSubmitWithinFivePercentApprovesAutomatically         Pass              4060
+TrainingNegotiationServiceTest.saveCalculatesTotalsOnServerAndPersists                     Pass              4461
+TrainingNegotiationServiceTest.submitRequiresJustificationAboveFivePercent                 Pass              4669
+TrainingNegotiationServiceTest.userWithoutPermissionCannotSave                             Pass              4007
+TrainingNegotiationTriggerTest.approvedNegotiationIsImmutableOnEveryChannel                Pass              1941
+TrainingNegotiationTriggerTest.bulk200ItemsRecalculateWithinLimits                         Pass              1613
+TrainingNegotiationTriggerTest.bulkDirectDmlRejectsForgedCatalogPrices                     Pass              1736
+TrainingNegotiationTriggerTest.changingParentRecalculatesBothNegotiations                  Pass              823
+TrainingNegotiationTriggerTest.deletingLastItemZeroesTotals                                Pass              1145
+TrainingNegotiationTriggerTest.directDmlEnforcesActiveOpportunityPricebookPrice            Pass              1070
+TrainingNegotiationTriggerTest.itemValidationsBlockInvalidData                             Pass              1469
+TrainingNegotiationTriggerTest.onlyOnePendingNegotiationPerOpportunity                     Pass              4755
+TrainingNegotiationTriggerTest.pendingNegotiationFreezesBusinessFields                     Pass              3988
+TrainingNegotiationTriggerTest.recalculationHandlesEmptyAndAlreadyCalculatedParents        Pass              703
+TrainingNegotiationTriggerTest.statusTransitionsAndDirectEditsAreValidated                 Pass              2450
+TrainingNegotiationTriggerTest.undeleteRestoresTotals                                      Pass              850
 
 
 === Apex Code Coverage by Class
-CLASSES                           PERCENT  UNCOVERED LINES     
+CLASSES                           PERCENT  UNCOVERED LINES
 ────────────────────────────────  ───────  ────────────────────
-TrainingApprovalRoutingAction     100%                         
-TrainingNegotiationItemHandler    94%      72,78,79,80,81,...  
-TrainingApprovalDecisionAction    100%                         
-TrainingConstants                 100%                         
+TrainingApprovalRoutingAction     100%
+TrainingNegotiationItemHandler    94%      72,78,79,80,81,...
+TrainingApprovalDecisionAction    100%
+TrainingConstants                 100%
 TrainingNegotiationHandler        90%      22,36,82,149,150,...
-TrainingHistoryService            100%                         
-TrainingNegotiationRecalcService  86%      42,43,44,46         
-TrainingException                 0%                           
-TrainingApprovalMatrix            94%      29                  
-TrainingApprovalService           94%      19,23,36,98,108     
+TrainingHistoryService            100%
+TrainingNegotiationRecalcService  86%      42,43,44,46
+TrainingException                 0%
+TrainingApprovalMatrix            94%      29
+TrainingApprovalService           94%      19,23,36,98,108
 TrainingNegotiationService        91%      88,98,99,100,102,...
-TrainingNegotiationController     100%                         
-TrainingNegotiationRequest        0%                           
-TrainingApproverResolver          76%      16,17,18,42,43      
-TrainingOrderController           100%                         
-TrainingNegotiationContext        100%                         
-TrainingOrderService              90%      23,26,43,52,69,...  
-TrainingNegotiationTrigger        100%                         
-TrainingNegotiationItemTrigger    100%                         
+TrainingNegotiationController     100%
+TrainingNegotiationRequest        0%
+TrainingApproverResolver          76%      16,17,18,42,43
+TrainingOrderController           100%
+TrainingNegotiationContext        100%
+TrainingOrderService              90%      23,26,43,52,69,...
+TrainingNegotiationTrigger        100%
+TrainingNegotiationItemTrigger    100%
 
 
 
 
 === Test Summary
-NAME                 VALUE                                 
+NAME                 VALUE
 ───────────────────  ──────────────────────────────────────
-Outcome              Passed                                
-Tests Ran            41                                    
-Pass Rate            100%                                  
-Fail Rate            0%                                    
-Skip Rate            0%                                    
-Test Run Id          707ak0000234aVB                       
-Test Setup Time      0 ms                                  
-Test Execution Time  150990 ms                             
-Test Total Time      150990 ms                             
-Org Id               00Dak00001NkzFdEAJ                    
-Username             deyvidfabregas41@brave-wolf-jfyrs5.com
-Org Wide Coverage    92%                                   
+Outcome              Passed
+Tests Ran            42
+Pass Rate            100%
+Fail Rate            0%
+Skip Rate            0%
+Test Run Id          707ak0000234Wbc
+Test Setup Time      0 ms
+Test Execution Time  142160 ms
+Test Total Time      142160 ms
+Org Id [redacted from the public evidence]
+Username [redacted from the public evidence]
+Org Wide Coverage    92%
 
