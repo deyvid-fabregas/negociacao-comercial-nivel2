@@ -23,10 +23,6 @@ sf project deploy start --source-dir force-app --target-org minha_nova_org
 sf apex run test --test-level RunLocalTests --code-coverage --result-format human --wait 20 --target-org minha_nova_org
 ```
 
-Se algum nome de classe já existir no seu repositório (ex.: `TrainingOrderService` do Nível 1), faça o merge manualmente:
-os nomes seguem exatamente os sugeridos pelo PDF (`TrainingNegotiationController/Service`, `TrainingNegotiationItemTrigger`,
-`TrainingOrderController/Service`, LWC `trainingNegotiationSimulator`).
-
 ## 3. Configuração pós-deploy
 
 1. **Permission Sets** (Setup → Permission Sets) — atribua aos usuários:
@@ -44,6 +40,8 @@ os nomes seguem exatamente os sugeridos pelo PDF (`TrainingNegotiationController
 3. **Simulador na Opportunity**: Lightning App Builder → editar a página de registro da Opportunity → arrastar
    *Training - Simulador de Negociação*. (Existe também a página pronta `Opportunity - Simulador de Negociacao`,
    não ativada para não substituir páginas existentes; ative em *Activation* se quiser.)
+   A página padrão `Opportunity_Record_Page` recuperada da org de origem não faz parte do projeto implantável; use a página
+   do simulador para evitar substituir uma página padrão existente ou depender de componentes instalados na org de origem.
 4. **Página da Negociação**: `Negociacao_Comercial_Record_Page` já é a visualização padrão do objeto (via *action override*).
 5. App **Training Negociações** (Opportunity + Negociações) disponível no App Launcher.
 6. (Opcional) `sf apex run --file scripts/apex/seed-demo.apex --target-org minha_nova_org` cria conta, 5 produtos e uma Opportunity.
@@ -58,7 +56,7 @@ force-app/main/default/
   triggers/           TrainingNegotiationItemTrigger (itens) e TrainingNegotiationTrigger (negociação)
   flows/              Negociacao_Roteamento_Aprovacao (record-triggered) e Negociacao_Decisao_Aprovacao (screen)
   lwc/                trainingNegotiationSimulator, trainingNegotiationSummary, trainingNegotiationActions
-  flexipages/         página da Negociação (Dynamic Forms + visibilidade por status) e página de Opportunity
+  flexipages/         página da Negociação (LWC + painel padrão de detalhes) e página de Opportunity do simulador
   permissionsets/     Vendedor + 3 aprovadores (com Custom Permissions)
   customMetadata/     matriz de aprovação (portável entre ambientes)
 docs/                 arquitetura, decisões, evidências de testes, rastreabilidade, respostas do code review, roteiro de demo

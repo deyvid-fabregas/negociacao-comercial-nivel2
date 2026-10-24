@@ -3,8 +3,8 @@
  *
  * - recalculating: true somente enquanto o RecalcService atualiza o Valor Bruto do pai. Evita
  *   loop de recursao SEM impedir operacoes legitimas (nao e um "ja rodei" booleano global).
- * - decisionAuthorized: true somente dentro do TrainingApprovalService (decisao validada).
- *   A Trigger recusa Pendente -> Aprovada/Rejeitada fora desse caminho (API, Data Loader etc.).
+ * - decisionAuthorized: marcador de fluxo de execução do TrainingApprovalService, não uma permissão.
+ *   O Handler também verifica a Custom Permission e o decisor antes de aceitar a transição.
  */
 public with sharing class TrainingNegotiationContext {
     private static Boolean recalculating = false;

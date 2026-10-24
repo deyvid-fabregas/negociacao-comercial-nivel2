@@ -18,7 +18,8 @@
 | US-04 CA02 rejeição sem motivo | Service + Trigger + Flow (campo obrigatório) | `rejectionRequiresReason` |
 | US-04 CA03 auditoria | `Historico_Decisao__c` + campos da negociação | `authorizedApproverApproves` |
 | US-04 CA04 sem transição duplicada | `FOR UPDATE` + status | `repeatedDecisionDoesNotDuplicateTransition` |
-| US-05 CA01–04 | FlexiPage + LWC (ver evidências manuais) | prints (`docs/TESTES_E_EVIDENCIAS.md`) |
+| US-05 CA01/03/04 | FlexiPage + LWCs | prints dos estados em `docs/TESTES_E_EVIDENCIAS.md` |
+| US-05 CA02 | Visibilidade UX de `canDecide` + autorização do servidor | teste positivo/negativo da permissão; falta evidência visual com usuário só-vendedor |
 | US-06 CA01 3 itens | `TrainingOrderService` | `approvedNegotiationGeneratesOrderWithThreeItems` |
 | US-06 CA02 rollback | Savepoint | `failureOnThirdItemRollsBackEverything` |
 | US-06 CA03 um Order | `FOR UPDATE` + chave única | `generatingTwiceKeepsASingleOrder`, `existingOrderFromAnotherTransactionIsReused` |
@@ -28,6 +29,6 @@
 | US-07 CA04 sem dados pré-existentes | `TrainingTestDataFactory` | todos |
 | Restrição: 1 Pendente por Opportunity | Trigger + `Chave_Pendente__c` única | `onlyOnePendingNegotiationPerOpportunity` |
 
-Matriz mínima do PDF (seção 7): todas as 10 linhas estão cobertas pelos testes acima. A linha "Duas chamadas de decisão concorrentes"
-é garantida por `FOR UPDATE` (serialização) e provada pelo comportamento sequencial equivalente em `repeatedDecisionDoesNotDuplicateTransition`
-(testes Apex não conseguem disparar duas transações realmente simultâneas).
+As verificações sequenciais comprovam decisões repetidas, não duas transações simultâneas. A concorrência é protegida pelo
+`FOR UPDATE`, mas não foi reproduzida por um teste Apex concorrente. Os critérios que dependem de evidência visual estão
+identificados como manuais e não devem ser considerados cobertos por um teste unitário.

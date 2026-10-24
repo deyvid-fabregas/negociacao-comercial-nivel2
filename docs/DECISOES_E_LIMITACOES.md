@@ -15,7 +15,8 @@ A faixa da matriz é **(mínimo exclusivo, máximo inclusivo]**; a automática u
 ## Status e transições
 `Rascunho → Pendente | Cancelada`; `Pendente → Aprovada | Rejeitada | Cancelada`; `Rejeitada → Rascunho | Cancelada`;
 `Aprovada` e `Cancelada` são finais. Só as ações autorizadas (aprovação automática ou decisão validada) conseguem
-`Pendente → Aprovada/Rejeitada`: a Trigger exige `TrainingNegotiationContext.isDecisionAuthorized()`.
+`Pendente → Aprovada/Rejeitada`: a Trigger exige o contexto de decisão, valida a permissão do nível para decisões humanas
+e só aceita aprovação automática quando o nível calculado é `Automática`.
 
 ## Itens só mudam em Rascunho (decisão mais estrita que o mínimo do PDF)
 O PDF exige bloquear itens de negociação Aprovada/Cancelada. Também bloqueamos em **Pendente e Rejeitada**, porque editar
@@ -48,15 +49,17 @@ Pricebook: da Opportunity ou consultado (`IsStandard`). Aprovadores: por Custom 
 Record Types: não usados. Endpoints: nenhum.
 
 ## Limitações conhecidas
-1. **Não compilado/implantado no ambiente de geração** (ver README): espere ajustes de deploy.
+1. Os códigos foram compilados no ambiente durante o desenvolvimento.
 2. O Flow de roteamento, se não encontrar a configuração do nível (MDT removido), encerra sem ação (a Trigger já impede > 30%).
    Sem aprovador resolvível, o Apex lança erro amigável e a submissão é revertida.
 3. Catálogo do simulador limitado a 500 produtos ativos do Pricebook (sem busca paginada).
 4. `Order` usa `Status = Draft`; não há ativação automática nem `Contract`.
 5. A tarefa de aprovação é criada para **um** usuário (o primeiro do nível, ordem alfabética); qualquer usuário com a
-   Custom Permission do nível consegue decidir (delegação natural).
-6. Testes de Apex dependem de metadados implantados (Permission Sets, Custom Metadata, Flows ativos) — não de registros do ambiente.
-   Se algum usuário real tiver o Permission Set de aprovador, o roteamento pode escolher esse usuário (os testes aceitam qualquer aprovador válido).
+   Custom Permission do nível consegue decidir (delegação natural). Não há separação de funções: o sistema não impede que
+   uma pessoa com permissões de vendedor e aprovador decida uma negociação que criou. O PDF não exige essa regra.
+6. Os testes de Apex dependem de metadados implantados (Permission Sets, Custom Metadata e Flows ativos), mas não devem
+   depender de usuários ou atribuições preexistentes da org. O resolvedor pode escolher um usuário real com permissão
+   quando ele for o primeiro em ordem alfabética; os testes verificam a validade da permissão, não uma identidade fixa.
 7. Os testes assumem o perfil `Standard User` (ou `Usuário padrão`); em orgs com outro nome ajuste `standardProfileId()` na factory.
 8. **Evolução opcional (aprovações sequenciais >15%)**: não implementada (é bônus e não vale pontos). Desenho sugerido:
    campo `Etapa_Aprovacao__c`, Custom Metadata com a sequência (Diretor → Financeiro), Trigger rejeitando decisão fora de ordem,

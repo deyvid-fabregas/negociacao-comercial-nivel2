@@ -21,8 +21,9 @@
 
 5. **Como você valida a permissão de quem aprova independentemente da FlexiPage?**
    `TrainingApprovalService.decide` exige a Custom Permission do **nível** (`FeatureManagement.checkPermission`) a cada chamada, seja pelo
-   Screen Flow, Apex direto ou Execute Anonymous. Além disso a Trigger só aceita `Pendente → Aprovada/Rejeitada` quando a decisão passou
-   por esse serviço. A visibilidade do botão na página é só conveniência de UX.
+   Screen Flow, Apex direto ou Execute Anonymous. A Trigger também verifica a Custom Permission do nível humano e identifica o decisor,
+   mesmo que alguém defina a flag estática de contexto diretamente; para aprovação automática, exige o nível `Automática` calculado no servidor.
+   A visibilidade do botão na página é só conveniência de UX.
 
 6. **Como seus dados permanecem íntegros quando o terceiro OrderItem falha?**
    `Savepoint` antes de criar o Order; qualquer exceção chama `Database.rollback`. O insert dos itens é all-or-none. O teste

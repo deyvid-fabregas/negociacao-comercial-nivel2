@@ -8,6 +8,11 @@ public without sharing class TrainingApproverResolver {
 
     public static Id resolve(String nivel) {
         Aprovacao_Nivel__mdt cfg = TrainingApprovalMatrix.byNivel(nivel);
+        return resolve(nivel, cfg);
+    }
+
+    @TestVisible
+    private static Id resolve(String nivel, Aprovacao_Nivel__mdt cfg) {
         if (cfg == null || cfg.Aprovacao_Automatica__c == true) {
             throw new TrainingException('Nível de aprovação inválido para aprovador humano: ' + nivel + '.');
         }

@@ -2,37 +2,37 @@
 
 ## Resultado real na org `minha_nova_org` (24/10/2026)
 
-As observações de que a validação de preço e a FlexiPage estariam pendentes referem-se a uma versão anterior do projeto. Nesta versão publicada, ambas foram implementadas, implantadas e verificadas conforme as evidências abaixo.
+Os códigos foram compilados no ambiente durante o desenvolvimento. Os resultados de implantação, testes e validação funcional estão registrados abaixo.
 
 - Deploy inicial: **85 componentes implantados**, sem a FlexiPage de Negociação. Depois disso, `Negociacao_Comercial_Record_Page` foi criada/salva e ativada no Lightning App Builder como padrão da org para Desktop e Phone; o metadata foi recuperado para o projeto e o `View` override do objeto aponta para ela nos form factors Large e Small.
-- Testes Apex (`RunLocalTests`): **42 executados, 42 aprovados, 0 falhas**. Cobertura global da org: **92%**. A saída da última execução está em `docs/evidencias/testes-apex-cobertura.txt`.
+- Testes Apex (`RunLocalTests`): **46 executados, 46 aprovados, 0 falhas**. Cobertura global da org: **91%**. Test Run Id: `707ak0000235diz`. A saída bruta, com Org Id e username redigidos, está em `docs/evidencias/testes-apex-cobertura.txt`.
 - Os dois Flows foram confirmados como **Active**, versão 1: `Negociacao_Roteamento_Aprovacao` e `Negociacao_Decisao_Aprovacao`.
 - Permission Sets `Training_Vendedor`, `Training_Aprovador_Gerente`, `Training_Aprovador_Diretor` e `Training_Aprovador_Financeiro` atribuídos ao usuário autenticado para os testes manuais.
-- Standard Price Book ativado; seed criou 5 produtos/entradas ativas e a Opportunity `006ak00000fxAyHAAU`.
+- Standard Price Book ativado; seed criou produtos/entradas ativas e uma Opportunity de teste.
 
 ### Cobertura por classe de produção
 
 | Classe | Cobertura |
 |---|---:|
 | `TrainingApprovalDecisionAction` | 100% |
-| `TrainingApprovalMatrix` | 94,44% |
+| `TrainingApprovalMatrix` | 94% |
 | `TrainingApprovalRoutingAction` | 100% |
-| `TrainingApprovalService` | 94,25% |
-| `TrainingApproverResolver` | 85,71% |
+| `TrainingApprovalService` | 94% |
+| `TrainingApproverResolver` | 91% |
 | `TrainingConstants` | 100% |
-| `TrainingException` | 100% |
+| `TrainingException` | N/A (sem linhas executáveis; CLI reporta 0%) |
 | `TrainingHistoryService` | 100% |
 | `TrainingNegotiationContext` | 100% |
 | `TrainingNegotiationController` | 100% |
-| `TrainingNegotiationHandler` | 90,44% |
-| `TrainingNegotiationItemHandler` | 97,30% |
+| `TrainingNegotiationHandler` | 87% |
+| `TrainingNegotiationItemHandler` | 94% |
 | `TrainingNegotiationItemTrigger` | 100% |
-| `TrainingNegotiationRecalcService` | 85,71% |
-| `TrainingNegotiationRequest` | 100% (sem linhas executáveis) |
-| `TrainingNegotiationService` | 91,11% |
+| `TrainingNegotiationRecalcService` | 86% |
+| `TrainingNegotiationRequest` | N/A (sem linhas executáveis; CLI reporta 0%) |
+| `TrainingNegotiationService` | 91% |
 | `TrainingNegotiationTrigger` | 100% |
 | `TrainingOrderController` | 100% |
-| `TrainingOrderService` | 89,77% |
+| `TrainingOrderService` | 90% |
 
 ### Verificação funcional executada
 
@@ -44,25 +44,28 @@ As observações de que a validação de preço e a FlexiPage estariam pendentes
 | Insert direto com preço adulterado (`R$ 1` em vez do preço do catálogo) | **PASS** — bloqueado pela Trigger; teste `directDmlEnforcesActiveOpportunityPricebookPrice` |
 | Update direto com preço adulterado | **PASS** — bloqueado pela Trigger; preço persistido permanece inalterado |
 | 200 inserts diretos com preço adulterado | **PASS** — todos os itens rejeitados pela Trigger; teste `bulkDirectDmlRejectsForgedCatalogPrices` |
+| Aprovação por DML direto com flag de contexto, sem Custom Permission | **PASS** — bloqueada pelo Handler; teste `directApprovalRequiresLevelPermissionEvenWhenContextIsSet` |
+| Alteração direta de aprovador, data, motivo, ciclo ou chave em negociação Pendente | **PASS** — bloqueada pelo Handler; teste `pendingNegotiationProtectsAuditAndUniquenessFields` |
+| Visibilidade de `canDecide` | **PASS** — falso para vendedor e verdadeiro para Diretor no teste automatizado |
 | Item sem entrada ativa no Pricebook da Opportunity | **PASS** — bloqueado pela Trigger |
 | 200 itens inseridos em massa | **PASS** — totais recalculados dentro dos limites; sem SOQL em loop |
 | Alterar item de negociação aprovada via DML | **PASS** — bloqueado pela validação da Trigger |
 | Gerar Order duas vezes | **PASS** — as duas chamadas retornaram o mesmo Order; 1 registro no total |
 
-Os testes de DML direto são testes Apex automatizados (o DML passa pela mesma Trigger usada por API/Data Loader). Os cenários funcionais foram conferidos na interface. A FlexiPage foi validada visualmente nos estados Rascunho, Pendente, Aprovada e Rejeitada; os prints estão na seção Evidências.
+Os testes de DML direto são testes Apex automatizados (o DML passa pela mesma Trigger usada por API/Data Loader). Os cenários funcionais foram conferidos na interface. A página foi validada visualmente nos estados Rascunho, Pendente, Aprovada e Rejeitada; os prints estão na seção Evidências. Ainda falta um print de CA02 com um usuário que tenha apenas o Permission Set de vendedor.
 
 ### Revalidação da integridade de preços (24/10/2026)
 
 - `TrainingNegotiationItemHandler` exige uma entrada ativa do Pricebook da Opportunity (ou do Standard Price Book quando a Opportunity não tem um Pricebook explícito) e rejeita preço unitário divergente em insert/update direto.
 - A validação é bulkificada: consulta pais e entradas de Pricebook em coleções, sem SOQL dentro de loops.
 - O teste `directDmlEnforcesActiveOpportunityPricebookPrice` tenta insert e update com preço adulterado e também um produto sem entrada ativa no Pricebook; os três casos são bloqueados. `bulkDirectDmlRejectsForgedCatalogPrices` tenta inserir 200 itens com preço adulterado e confirma que todos são rejeitados; `bulk200ItemsRecalculateWithinLimits` cobre 200 itens com preço correto.
-- Correção implantada na org e validada com `RunLocalTests`: **42/42 testes aprovados**, cobertura global de **92%**.
+- Correção implantada na org e validada com `RunLocalTests`: **46/46 testes aprovados**, cobertura global de **91%** (Test Run Id `707ak0000235diz`).
 
 ## Apex
 ```bash
 sf apex run test --test-level RunLocalTests --code-coverage --result-format human --wait 30 --target-org minha_nova_org
 ```
-Meta: ≥ 85% nas classes do desafio. Classes de teste: `TrainingNegotiationServiceTest`, `TrainingNegotiationTriggerTest`,
+Meta: ≥ 85% nas classes do desafio com linhas executáveis; classes sem linhas executáveis são N/A. Classes de teste: `TrainingNegotiationServiceTest`, `TrainingNegotiationTriggerTest`,
 `TrainingApprovalServiceTest`, `TrainingOrderServiceTest` (+ `TrainingTestDataFactory`). Os testes criam seus próprios dados
 (usuários, produtos, pricebook entries, oportunidades) e usam `System.runAs` com os Permission Sets reais.
 Anexe aqui: print do resultado + cobertura por classe.
@@ -112,14 +115,15 @@ Validação: **Flow Debug** informando `recordId` de uma negociação Pendente +
 
 Correção encontrada nesta validação: o LWC passa a enviar o pedido de salvamento como JSON
 (`TrainingNegotiationController.saveNegotiation(String requestJson, Boolean submit)`), pois a lista de
-itens chegava vazia ao Apex ("Adicione ao menos um produto à negociação."). Testes: 42/42.
+itens chegava vazia ao Apex ("Adicione ao menos um produto à negociação."). A última execução completa teve 46/46 testes aprovados.
 
 ## Evidências (prints em `docs/evidencias/`)
-Testes Apex: 42/42 aprovados, cobertura da org 92% (RunLocalTests, 24/10/2026). Saída completa em
+Testes Apex: 46/46 aprovados, cobertura da org 91% (RunLocalTests, 24/10/2026; Test Run Id `707ak0000235diz`). Saída completa em
 [`evidencias/testes-apex-cobertura.txt`](evidencias/testes-apex-cobertura.txt).
-O teste `approverResolverRejectsUnknownAndUnassignedLevels` passou a aceitar tanto "sem aprovador" quanto
-"com aprovador" para o nível Financeiro, pois o resultado depende dos Permission Sets atribuídos na org
-(atribuí os de Gerente e Financeiro ao usuário de teste durante a validação manual).
+As classes `TrainingException` e `TrainingNegotiationRequest` aparecem com 0% na CLI, mas não têm linhas executáveis; são
+N/A para a meta de cobertura por classe. Os testes do resolvedor exercitam username configurado, username inativo com fallback
+para Custom Permission e nível desconhecido; não inferem o resultado com base na quantidade de Permission Sets de usuários
+preexistentes.
 
 | Estado / cenário | Print |
 |---|---|

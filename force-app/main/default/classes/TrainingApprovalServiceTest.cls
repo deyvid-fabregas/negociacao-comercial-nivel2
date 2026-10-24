@@ -94,7 +94,7 @@ private class TrainingApprovalServiceTest {
     }
 
     @IsTest
-    static void approverResolverRejectsUnknownAndUnassignedLevels() {
+    static void approverResolverRejectsUnknownLevel() {
         Boolean thrown = false;
         try {
             TrainingApproverResolver.resolve('Nível inexistente');
@@ -103,21 +103,41 @@ private class TrainingApprovalServiceTest {
             System.assert(e.getMessage().contains('inválido'));
         }
         System.assert(thrown);
+    }
 
-        // O resolvedor lê atribuições reais de Permission Set (dados de setup): o resultado esperado depende da org.
-        Integer financeiroAssignees = [
+    @IsTest
+    static void approverResolverUsesConfiguredActiveUsername() {
+        User configured = TrainingTestDataFactory.createUser('cfguser', null);
+        Aprovacao_Nivel__mdt cfg = new Aprovacao_Nivel__mdt(
+            Nivel__c = 'Diretor',
+            Aprovacao_Automatica__c = false,
+            Aprovador_Username__c = configured.Username,
+            Custom_Permission__c = 'Aprovar_Negociacao_Diretor'
+        );
+
+        System.assertEquals(configured.Id, TrainingApproverResolver.resolve('Diretor', cfg));
+    }
+
+    @IsTest
+    static void approverResolverFallsBackWhenConfiguredUsernameIsInactive() {
+        User inactive = TrainingTestDataFactory.createUser('inactivo', new List<String>{ TrainingTestDataFactory.PS_DIRETOR });
+        update new User(Id = inactive.Id, IsActive = false);
+        TrainingTestDataFactory.createUser('fallback', new List<String>{ TrainingTestDataFactory.PS_DIRETOR });
+        Aprovacao_Nivel__mdt cfg = new Aprovacao_Nivel__mdt(
+            Nivel__c = 'Diretor',
+            Aprovacao_Automatica__c = false,
+            Aprovador_Username__c = inactive.Username,
+            Custom_Permission__c = 'Aprovar_Negociacao_Diretor'
+        );
+
+        Id approverId = TrainingApproverResolver.resolve('Diretor', cfg);
+        System.assertNotEquals(inactive.Id, approverId);
+        System.assertEquals(1, [
             SELECT COUNT() FROM PermissionSetAssignment
-            WHERE PermissionSet.Name = 'Training_Aprovador_Financeiro' AND Assignee.IsActive = true
-        ];
-        thrown = false;
-        try {
-            Id approverId = TrainingApproverResolver.resolve('Financeiro');
-            System.assertNotEquals(null, approverId);
-        } catch (TrainingException e) {
-            thrown = true;
-            System.assert(e.getMessage().contains('Nenhum aprovador ativo'));
-        }
-        System.assertEquals(financeiroAssignees == 0, thrown);
+            WHERE AssigneeId = :approverId
+                AND Assignee.IsActive = true
+                AND PermissionSet.Name = :TrainingTestDataFactory.PS_DIRETOR
+        ]);
     }
 
     // US-04 CA02: rejeicao sem motivo e bloqueada; com motivo persiste
@@ -162,6 +182,13 @@ private class TrainingApprovalServiceTest {
             System.assert(thrown, 'Usuário sem permissão do nível não pode aprovar');
         }
         System.assertEquals('Pendente', TrainingTestDataFactory.reload(n.Id).Status__c);
+
+        System.runAs(seller) {
+            System.assertEquals(false, TrainingNegotiationService.getView(n.Id).canDecide);
+        }
+        System.runAs(diretor) {
+            System.assertEquals(true, TrainingNegotiationService.getView(n.Id).canDecide);
+        }
 
         // Acao invocavel (Screen Flow): devolve falha amigavel, sem excecao
         TrainingApprovalDecisionAction.Request request = new TrainingApprovalDecisionAction.Request();

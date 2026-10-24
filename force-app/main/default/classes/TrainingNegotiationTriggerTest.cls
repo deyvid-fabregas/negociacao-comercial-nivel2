@@ -128,6 +128,76 @@ private class TrainingNegotiationTriggerTest {
     }
 
     @IsTest
+    static void directApprovalRequiresLevelPermissionEvenWhenContextIsSet() {
+        User seller = TrainingTestDataFactory.createUser('gateselr', new List<String>{ TrainingTestDataFactory.PS_VENDEDOR });
+        TrainingTestDataFactory.createUser('gatedir', new List<String>{ TrainingTestDataFactory.PS_DIRETOR });
+        Opportunity opp = TrainingTestDataFactory.createOpportunity(seller.Id);
+        List<Product2> products = TrainingTestDataFactory.createProducts(1, 100);
+        Negociacao_Comercial__c n = TrainingTestDataFactory.createNegotiationWithItems(
+            opp.Id, 12, 'Desconto estratégico', products, 1);
+        TrainingTestDataFactory.submit(n.Id);
+        n = TrainingTestDataFactory.reload(n.Id);
+
+        System.runAs(seller) {
+            Boolean previous = TrainingNegotiationContext.isDecisionAuthorized();
+            TrainingNegotiationContext.setDecisionAuthorized(true);
+            try {
+                Database.SaveResult result = Database.update(new Negociacao_Comercial__c(
+                    Id = n.Id,
+                    Status__c = TrainingConstants.APROVADA,
+                    Aprovador__c = seller.Id,
+                    Data_Aprovacao__c = System.now()
+                ), false);
+                System.assertEquals(false, result.isSuccess());
+                System.assert(firstError(result).contains('usuário autorizado'), firstError(result));
+            } finally {
+                TrainingNegotiationContext.setDecisionAuthorized(previous);
+            }
+        }
+        System.assertEquals(TrainingConstants.PENDENTE, TrainingTestDataFactory.reload(n.Id).Status__c);
+    }
+
+    @IsTest
+    static void pendingNegotiationProtectsAuditAndUniquenessFields() {
+        User seller = TrainingTestDataFactory.createUser('auditsel', new List<String>{ TrainingTestDataFactory.PS_VENDEDOR });
+        TrainingTestDataFactory.createUser('auditdir', new List<String>{ TrainingTestDataFactory.PS_DIRETOR });
+        Opportunity opp = TrainingTestDataFactory.createOpportunity(seller.Id);
+        List<Product2> products = TrainingTestDataFactory.createProducts(1, 100);
+        Negociacao_Comercial__c n = TrainingTestDataFactory.createNegotiationWithItems(
+            opp.Id, 12, 'Desconto estratégico', products, 1);
+        TrainingTestDataFactory.submit(n.Id);
+        n = TrainingTestDataFactory.reload(n.Id);
+
+        List<Negociacao_Comercial__c> attempts = new List<Negociacao_Comercial__c>{
+            new Negociacao_Comercial__c(Id = n.Id, Aprovador__c = seller.Id),
+            new Negociacao_Comercial__c(Id = n.Id, Data_Aprovacao__c = System.now()),
+            new Negociacao_Comercial__c(Id = n.Id, Motivo_Rejeicao__c = 'Motivo forjado'),
+            new Negociacao_Comercial__c(Id = n.Id, Ciclo_Aprovacao__c = 99),
+            new Negociacao_Comercial__c(Id = n.Id, Chave_Pendente__c = null),
+            new Negociacao_Comercial__c(
+                Id = n.Id, Status__c = TrainingConstants.CANCELADA,
+                Aprovador__c = seller.Id, Data_Aprovacao__c = System.now()
+            )
+        };
+        List<String> expectedErrors = new List<String>{
+            'O aprovador esperado',
+            'Campos de auditoria e controle',
+            'Campos de auditoria e controle',
+            'Campos de auditoria e controle',
+            'Campos de auditoria e controle',
+            'Campos de auditoria e controle'
+        };
+        for (Integer i = 0; i < attempts.size(); i++) {
+            Database.SaveResult result = Database.update(attempts[i], false);
+            System.assertEquals(false, result.isSuccess());
+            System.assert(firstError(result).contains(expectedErrors[i]), firstError(result));
+        }
+        Negociacao_Comercial__c unchanged = TrainingTestDataFactory.reload(n.Id);
+        System.assertEquals(TrainingConstants.PENDENTE, unchanged.Status__c);
+        System.assertEquals(String.valueOf(opp.Id), unchanged.Chave_Pendente__c);
+    }
+
+    @IsTest
     static void directDmlEnforcesActiveOpportunityPricebookPrice() {
         Opportunity opp = TrainingTestDataFactory.createOpportunity(UserInfo.getUserId());
         List<Product2> products = TrainingTestDataFactory.createProducts(2, 50);

@@ -166,8 +166,9 @@ private class TrainingNegotiationServiceTest {
                 TrainingNegotiationService.saveNegotiation(
                     TrainingTestDataFactory.buildRequest(opp.Id, 0, null, new Map<Id, Integer>{ products[0].Id => 1 }), false);
             }
-        } catch (Exception e) {
+        } catch (TrainingException e) {
             thrown = true;
+            System.assert(e.getMessage().contains('permissão'), e.getMessage());
         }
         System.assert(thrown, 'Usuário sem permissão não pode criar negociações');
         System.assertEquals(0, [SELECT COUNT() FROM Negociacao_Comercial__c]);

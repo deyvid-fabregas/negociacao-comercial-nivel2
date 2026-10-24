@@ -53,6 +53,7 @@ public with sharing class TrainingNegotiationHandler {
 
     private static void beforeUpdate(List<Negociacao_Comercial__c> records, Map<Id, Negociacao_Comercial__c> oldMap) {
         List<Negociacao_Comercial__c> submissions = new List<Negociacao_Comercial__c>();
+        Map<String, Id> resolvedApproverByLevel = new Map<String, Id>();
 
         for (Negociacao_Comercial__c n : records) {
             Negociacao_Comercial__c o = oldMap.get(n.Id);
@@ -64,6 +65,51 @@ public with sharing class TrainingNegotiationHandler {
             }
 
             Boolean statusChanged = n.Status__c != o.Status__c;
+            if (statusChanged && n.Status__c != TrainingConstants.PENDENTE
+                    && n.Status__c != TrainingConstants.APROVADA
+                    && n.Status__c != TrainingConstants.REJEITADA
+                    && (n.Aprovador__c != o.Aprovador__c
+                        || n.Data_Aprovacao__c != o.Data_Aprovacao__c
+                        || n.Motivo_Rejeicao__c != o.Motivo_Rejeicao__c
+                        || n.Ciclo_Aprovacao__c != o.Ciclo_Aprovacao__c)) {
+                n.addError('Campos de auditoria e controle não podem ser alterados fora de uma decisão autorizada.');
+                continue;
+            }
+            if (statusChanged && (n.Status__c == TrainingConstants.APROVADA
+                    || n.Status__c == TrainingConstants.REJEITADA)
+                    && n.Ciclo_Aprovacao__c != o.Ciclo_Aprovacao__c) {
+                n.addError('O ciclo de aprovação é controlado pelo sistema e não pode ser alterado na decisão.');
+                continue;
+            }
+            if (!statusChanged) {
+                if (n.Ciclo_Aprovacao__c != o.Ciclo_Aprovacao__c
+                        || n.Data_Aprovacao__c != o.Data_Aprovacao__c
+                        || n.Motivo_Rejeicao__c != o.Motivo_Rejeicao__c
+                        || n.Chave_Pendente__c != o.Chave_Pendente__c) {
+                    n.addError('Campos de auditoria e controle não podem ser alterados diretamente.');
+                    continue;
+                }
+                if (n.Aprovador__c != o.Aprovador__c) {
+                    if (o.Status__c != TrainingConstants.PENDENTE || o.Aprovador__c != null || n.Aprovador__c == null) {
+                        n.addError('O aprovador esperado só pode ser definido uma vez pelo roteamento da negociação.');
+                        continue;
+                    }
+                    if (!resolvedApproverByLevel.containsKey(n.Nivel_Aprovacao__c)) {
+                        try {
+                            resolvedApproverByLevel.put(n.Nivel_Aprovacao__c,
+                                TrainingApproverResolver.resolve(n.Nivel_Aprovacao__c));
+                        } catch (TrainingException e) {
+                            resolvedApproverByLevel.put(n.Nivel_Aprovacao__c, null);
+                            n.addError(e.getMessage());
+                            continue;
+                        }
+                    }
+                    if (n.Aprovador__c != resolvedApproverByLevel.get(n.Nivel_Aprovacao__c)) {
+                        n.addError('O aprovador informado não corresponde ao roteamento configurado para este nível.');
+                        continue;
+                    }
+                }
+            }
             if (statusChanged) {
                 Set<String> allowed = TRANSICOES.get(o.Status__c);
                 if (allowed == null || !allowed.contains(n.Status__c)) {
@@ -166,6 +212,16 @@ public with sharing class TrainingNegotiationHandler {
             n.addError('A aprovação só pode ser registrada pelo processo de decisão autorizado.');
             return;
         }
+        if (n.Nivel_Aprovacao__c == TrainingConstants.NIVEL_AUTOMATICA) {
+            if (n.Aprovador__c != null) {
+                n.addError('A aprovação automática não pode registrar um aprovador humano.');
+                return;
+            }
+        } else if (!TrainingApprovalService.hasLevelPermission(n.Nivel_Aprovacao__c)
+                || n.Aprovador__c != UserInfo.getUserId()) {
+            n.addError('A aprovação exige um usuário autorizado para o nível e identificado como decisor.');
+            return;
+        }
         if (n.Data_Aprovacao__c == null || (n.Aprovador__c == null && n.Nivel_Aprovacao__c != TrainingConstants.NIVEL_AUTOMATICA)) {
             n.addError('A aprovação exige responsável e data/hora da decisão.');
             return;
@@ -176,6 +232,12 @@ public with sharing class TrainingNegotiationHandler {
     private static void validateRejection(Negociacao_Comercial__c n) {
         if (!TrainingNegotiationContext.isDecisionAuthorized()) {
             n.addError('A rejeição só pode ser registrada pelo processo de decisão autorizado.');
+            return;
+        }
+        if (n.Nivel_Aprovacao__c == TrainingConstants.NIVEL_AUTOMATICA
+                || !TrainingApprovalService.hasLevelPermission(n.Nivel_Aprovacao__c)
+                || n.Aprovador__c != UserInfo.getUserId()) {
+            n.addError('A rejeição exige um usuário autorizado para o nível e identificado como decisor.');
             return;
         }
         if (String.isBlank(n.Motivo_Rejeicao__c)) {

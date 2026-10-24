@@ -6,7 +6,7 @@ flowchart LR
     SIM[LWC trainingNegotiationSimulator<br/>Opportunity]
     SUM[LWC trainingNegotiationSummary]
     ACT[LWC trainingNegotiationActions]
-    FP[FlexiPage Negociacao_Comercial<br/>Dynamic Forms + visibilidade]
+    FP[FlexiPage Negociacao_Comercial<br/>Resumo e ações LWC + detalhes padrão]
     SF[Screen Flow<br/>Negociacao_Decisao_Aprovacao]
   end
   subgraph APEX[Apex]
@@ -51,7 +51,7 @@ flowchart LR
 |---|---|---|---|
 | LWC | `trainingNegotiationSimulator` | montar itens, prévia de totais, validação de UX, enviar **apenas** produto/quantidade/desconto | decidir preço, aplicar regra de negócio definitiva |
 | LWC | `trainingNegotiationSummary` | resumo, indicadores, itens, motivo da rejeição, aprovador esperado (reutilizado no Screen Flow) | alterar dados |
-| LWC | `trainingNegotiationActions` | botões por status; abre modal do simulador e do Screen Flow | autorizar (só exibe; o servidor revalida) |
+| LWC | `trainingNegotiationActions` | exibe botões conforme status/permissão; abre modal do simulador e do Screen Flow | autorizar (só exibe; o servidor revalida) |
 | Apex Controller | `Training*Controller` | traduzir exceções em `AuraHandledException` | regra de negócio |
 | Apex Service | `TrainingNegotiationService` | reprecificar no servidor (Pricebook), salvar com savepoint, submeter/reabrir/cancelar, DML em modo usuário | cálculo de totais do pai (é da Trigger) |
 | Apex Service | `TrainingApprovalService` | decisão com lock de linha, autorização por Custom Permission, auditoria, aprovação automática | roteamento (é do Flow) |
@@ -61,6 +61,10 @@ flowchart LR
 | Flow (record-triggered) | Roteamento | dispara só em `Status → Pendente`; consulta a matriz (MDT); aprovação automática ou Task idempotente + aprovador esperado | recalcular valores |
 | Flow (screen) | Decisão | UI de decisão; chama a ação Apex que valida no servidor | autorizar sozinho |
 | Metadados | `Aprovacao_Nivel__mdt` | faixas, Custom Permission e aprovador opcional por nível | — |
+
+A FlexiPage implantada não usa Dynamic Forms nem regras `visibilityRule`: ela contém o resumo e as ações em LWC,
+além do painel padrão de detalhes. A visibilidade por estado é controlada dentro de `trainingNegotiationActions`;
+é uma conveniência de interface, não um controle de autorização.
 
 ## Ownership de campos (evita automações conflitantes)
 
