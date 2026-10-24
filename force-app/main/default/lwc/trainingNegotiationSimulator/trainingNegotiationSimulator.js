@@ -221,7 +221,7 @@ export default class TrainingNegotiationSimulator extends NavigationMixin(Lightn
                 justification: this.justification,
                 items: this.lines.map((l) => ({ productId: l.productId, quantity: parseInt(l.quantity, 10) }))
             };
-            const result = await saveNegotiation({ request, submit });
+            const result = await saveNegotiation({ requestJson: JSON.stringify(request), submit });
             this.currentNegotiationId = result.negotiationId;
             this.dispatchEvent(new ShowToastEvent({ title: 'Sucesso', message: result.message, variant: 'success' }));
             this.dispatchEvent(new CustomEvent('saved', { detail: { negotiationId: result.negotiationId, status: result.status } }));

@@ -201,7 +201,7 @@ private class TrainingNegotiationServiceTest {
         init();
         System.runAs(seller) {
             TrainingNegotiationService.SaveResult saved = TrainingNegotiationController.saveNegotiation(
-                TrainingTestDataFactory.buildRequest(opp.Id, 0, null, new Map<Id, Integer>{ products[0].Id => 1 }), false);
+                JSON.serialize(TrainingTestDataFactory.buildRequest(opp.Id, 0, null, new Map<Id, Integer>{ products[0].Id => 1 })), false);
             System.assertEquals(3, TrainingNegotiationController.getCatalog(opp.Id).size());
             System.assertEquals('Cancelada', TrainingNegotiationController.cancelNegotiation(saved.negotiationId).status);
 
@@ -216,8 +216,8 @@ private class TrainingNegotiationServiceTest {
 
             thrown = false;
             try {
-                TrainingNegotiationController.saveNegotiation(TrainingTestDataFactory.buildRequest(opp.Id, 31, null,
-                    new Map<Id, Integer>{ products[0].Id => 1 }), false);
+                TrainingNegotiationController.saveNegotiation(JSON.serialize(TrainingTestDataFactory.buildRequest(opp.Id, 31, null,
+                    new Map<Id, Integer>{ products[0].Id => 1 })), false);
             } catch (AuraHandledException e) {
                 thrown = true;
             }
@@ -233,7 +233,7 @@ private class TrainingNegotiationServiceTest {
             System.assertEquals(4, TrainingNegotiationController.getApprovalMatrix().size());
             System.assertEquals(0, TrainingNegotiationController.getDraft(opp.Id, null).items.size());
             saved = TrainingNegotiationController.saveNegotiation(
-                TrainingTestDataFactory.buildRequest(opp.Id, 12, 'Justificativa', new Map<Id, Integer>{ products[0].Id => 1 }), false);
+                JSON.serialize(TrainingTestDataFactory.buildRequest(opp.Id, 12, 'Justificativa', new Map<Id, Integer>{ products[0].Id => 1 })), false);
             System.assertEquals('Rascunho', TrainingNegotiationController.getView(saved.negotiationId).status);
             System.assertEquals('Pendente', TrainingNegotiationController.submitNegotiation(saved.negotiationId).status);
 

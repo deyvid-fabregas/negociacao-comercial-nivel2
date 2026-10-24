@@ -86,6 +86,23 @@ Validação: **Flow Debug** informando `recordId` de uma negociação Pendente +
 | 4 | Vendedor / aprovador de outro nível | tentar decidir (Flow ou Apex) | falha "Você não tem permissão..." |
 | 5 | Diretor | decidir de novo | "Esta negociação já foi resolvida" |
 
+## Validação manual pela interface (24/10/2026)
+| Cenário | Resultado observado |
+|---|---|
+| Simulador, 5% | NEG-0005 Aprovada, nível Automática (5% é o limite da faixa automática) |
+| Simulador, 6% sem aprovador Gerente | Bloqueado: "Nenhum aprovador ativo foi encontrado para o nível Gerente" |
+| Simulador, 6% após atribuir `Training_Aprovador_Gerente` | NEG-0008 Pendente, nível Gerente, valor final R$ 75.200,00 |
+| Simulador, 12% | NEG-0007 Pendente, nível Diretor |
+| Rejeitar sem motivo (Screen Flow) | Bloqueado: campo obrigatório |
+| Rejeitar com motivo | NEG-0007 rejeitada com sucesso |
+| Reabrir, ciclo 2, aprovar | NEG-0007 Aprovada, ciclo 2 |
+| Gerar pedido | Order 00000103 em Draft, R$ 44.000,00 (valor final da negociação) |
+| Gerar pedido novamente | Botão vira "Abrir pedido gerado"; consulta mostra 1 Order por negociação |
+
+Correção encontrada nesta validação: o LWC passa a enviar o pedido de salvamento como JSON
+(`TrainingNegotiationController.saveNegotiation(String requestJson, Boolean submit)`), pois a lista de
+itens chegava vazia ao Apex ("Adicione ao menos um produto à negociação."). Testes: 41/41.
+
 ## Evidências a anexar na entrega
 - [ ] Execução dos testes Apex + cobertura
 - [ ] Prints da FlexiPage nos 4 estados (Rascunho, Pendente, Aprovada, Rejeitada)

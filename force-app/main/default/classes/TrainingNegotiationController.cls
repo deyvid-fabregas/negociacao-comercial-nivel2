@@ -27,9 +27,11 @@ public with sharing class TrainingNegotiationController {
     }
 
     @AuraEnabled
-    public static TrainingNegotiationService.SaveResult saveNegotiation(TrainingNegotiationRequest request, Boolean submit) {
+    public static TrainingNegotiationService.SaveResult     saveNegotiation(String requestJson, Boolean submit) {
         try {
-            return TrainingNegotiationService.saveNegotiation(request, submit);
+                // JSON explícito: evita falha de conversão da lista de classes internas vinda do LWC.
+                TrainingNegotiationRequest request = (TrainingNegotiationRequest) JSON.deserialize(requestJson, TrainingNegotiationRequest.class);
+                return TrainingNegotiationService.saveNegotiation(request, submit);
         } catch (Exception e) {
             throw TrainingNegotiationService.toAura(e);
         }
