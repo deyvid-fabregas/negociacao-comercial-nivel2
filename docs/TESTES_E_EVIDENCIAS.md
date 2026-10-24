@@ -122,6 +122,9 @@ itens chegava vazia ao Apex ("Adicione ao menos um produto à negociação."). T
 | Pendente, Financeiro (25%) | ![](evidencias/11-pendente-financeiro-25pct.png) |
 | Cancelada (NEG-0010), sem botões de ação | ![](evidencias/12-cancelada.png) |
 | Task de aprovação fechada (Completed) ao cancelar | ![](evidencias/13-task-concluida-apos-cancelar.png) |
+| Decisão do Financeiro (NEG-0011), modal | ![](evidencias/14-decisao-financeiro-modal.png) |
+| NEG-0011 rejeitada com sucesso | ![](evidencias/15-rejeitada-financeiro-sucesso.png) |
+| Página no estado Rejeitada (motivo, Reabrir/Cancelar) | ![](evidencias/16-pagina-rejeitada.png) |
 
 ## Evidências a anexar na entrega
 - [ ] Execução dos testes Apex + cobertura
