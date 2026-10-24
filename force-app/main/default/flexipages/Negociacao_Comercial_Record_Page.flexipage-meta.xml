@@ -3,8 +3,8 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>force:highlightsPanel</componentName>
-                <identifier>force_highlightsPanel</identifier>
+                <componentName>trainingNegotiationSummary</componentName>
+                <identifier>c_trainingNegotiationSummary</identifier>
             </componentInstance>
         </itemInstances>
         <name>header</name>
@@ -13,55 +13,8 @@
     <flexiPageRegions>
         <itemInstances>
             <componentInstance>
-                <componentName>c:trainingNegotiationActions</componentName>
-                <identifier>c_trainingNegotiationActions</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentName>c:trainingNegotiationSummary</componentName>
-                <identifier>c_trainingNegotiationSummary</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>columns</name>
-                    <value>Facet-00000001-aaaa-4bbb-8ccc-000000000001</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Valores e desconto</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:fieldSection</componentName>
-                <identifier>flexipage_fieldSection1</identifier>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentInstanceProperties>
-                    <name>columns</name>
-                    <value>Facet-00000003-aaaa-4bbb-8ccc-000000000003</value>
-                </componentInstanceProperties>
-                <componentInstanceProperties>
-                    <name>label</name>
-                    <value>Aguardando aprovacao</value>
-                </componentInstanceProperties>
-                <componentName>flexipage:fieldSection</componentName>
-                <identifier>flexipage_fieldSection3</identifier>
-                <visibilityRule>
-                    <criteria>
-                    <leftValue>{!Record.Status__c}</leftValue>
-                    <operator>EQUAL</operator>
-                    <rightValue>Pendente</rightValue>
-                </criteria>
-            </visibilityRule>
-            </componentInstance>
-        </itemInstances>
-        <itemInstances>
-            <componentInstance>
-                <componentName>force:relatedListContainer</componentName>
-                <identifier>force_relatedListContainer</identifier>
+                <componentName>force:detailPanel</componentName>
+                <identifier>force_detailPanel</identifier>
             </componentInstance>
         </itemInstances>
         <name>main</name>
@@ -69,86 +22,22 @@
     </flexiPageRegions>
     <flexiPageRegions>
         <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Status__c</fieldItem>
-                <identifier>RecordStatus_cField1</identifier>
-            </fieldInstance>
+            <componentInstance>
+                <componentName>trainingNegotiationActions</componentName>
+                <identifier>c_trainingNegotiationActions</identifier>
+            </componentInstance>
         </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Percentual_Desconto__c</fieldItem>
-                <identifier>RecordPercentual_Desconto_cField1</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Valor_Bruto__c</fieldItem>
-                <identifier>RecordValor_Bruto_cField1</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Valor_Desconto__c</fieldItem>
-                <identifier>RecordValor_Desconto_cField1</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Valor_Final__c</fieldItem>
-                <identifier>RecordValor_Final_cField1</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-00000001-aaaa-4bbb-8ccc-000000000001</name>
-        <type>Facet</type>
+        <name>sidebar</name>
+        <type>Region</type>
     </flexiPageRegions>
-    <flexiPageRegions>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Nivel_Aprovacao__c</fieldItem>
-                <identifier>RecordNivel_Aprovacao_cField3</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <itemInstances>
-            <fieldInstance>
-                <fieldInstanceProperties>
-                    <name>uiBehavior</name>
-                    <value>readonly</value>
-                </fieldInstanceProperties>
-                <fieldItem>Record.Ciclo_Aprovacao__c</fieldItem>
-                <identifier>RecordCiclo_Aprovacao_cField3</identifier>
-            </fieldInstance>
-        </itemInstances>
-        <name>Facet-00000003-aaaa-4bbb-8ccc-000000000003</name>
-        <type>Facet</type>
-    </flexiPageRegions>
-    <masterLabel>Negociacao Comercial - Pagina Dinamica</masterLabel>
+    <masterLabel>Negociacao Comercial Record Page</masterLabel>
     <sobjectType>Negociacao_Comercial__c</sobjectType>
     <template>
         <name>flexipage:recordHomeTemplateDesktop</name>
+        <properties>
+            <name>enablePageActionConfig</name>
+            <value>false</value>
+        </properties>
     </template>
     <type>RecordPage</type>
 </FlexiPage>
