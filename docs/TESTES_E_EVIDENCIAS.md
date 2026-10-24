@@ -106,6 +106,21 @@ Correção encontrada nesta validação: o LWC passa a enviar o pedido de salvam
 (`TrainingNegotiationController.saveNegotiation(String requestJson, Boolean submit)`), pois a lista de
 itens chegava vazia ao Apex ("Adicione ao menos um produto à negociação."). Testes: 41/41.
 
+## Evidências (prints em `docs/evidencias/`)
+| Estado / cenário | Print |
+|---|---|
+| Aprovada automática (5%) | ![](evidencias/01-aprovada-automatica-5pct.png) |
+| Erro: sem aprovador Gerente (6%) | ![](evidencias/02-erro-sem-aprovador-gerente.png) |
+| Pendente, Diretor (12%) | ![](evidencias/03-pendente-diretor-12pct.png) |
+| Rejeitar sem motivo bloqueado | ![](evidencias/04-rejeitar-sem-motivo-bloqueado.png) |
+| Rejeitada com sucesso (Flow) | ![](evidencias/05-rejeitada-com-sucesso.png) |
+| Pedido gerado (Order 00000103) | ![](evidencias/06-pedido-gerado.png) |
+| Aprovada + "Abrir pedido gerado" | ![](evidencias/07-aprovada-abrir-pedido-gerado.png) |
+| Pendente, Gerente (6%) | ![](evidencias/08-pendente-gerente-6pct.png) |
+| Rascunho | ![](evidencias/09-rascunho.png) |
+| Pendente, Diretor (20%) | ![](evidencias/10-pendente-diretor-20pct.png) |
+| Pendente, Financeiro (25%) | ![](evidencias/11-pendente-financeiro-25pct.png) |
+
 ## Evidências a anexar na entrega
 - [ ] Execução dos testes Apex + cobertura
 - [ ] Prints da FlexiPage nos 4 estados (Rascunho, Pendente, Aprovada, Rejeitada)
