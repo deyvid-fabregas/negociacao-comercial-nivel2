@@ -78,21 +78,50 @@ public class TrainingTestDataFactory {
         return n;
     }
 
-    public static Item_Negociacao__c createItem(Id negotiationId, Id productId, Integer quantity, Decimal price) {
+    public static Item_Negociacao__c createItem(Id negotiationId, Id productId, Integer quantity) {
+        Negociacao_Comercial__c negotiation = [
+            SELECT Opportunity__r.Pricebook2Id
+            FROM Negociacao_Comercial__c WHERE Id = :negotiationId
+        ];
+        Id pricebookId = TrainingNegotiationService.resolvePricebookId(negotiation.Opportunity__r.Pricebook2Id);
+        PricebookEntry entry = [
+            SELECT UnitPrice FROM PricebookEntry
+            WHERE Pricebook2Id = :pricebookId AND Product2Id = :productId
+                AND IsActive = true AND Product2.IsActive = true
+            LIMIT 1
+        ];
         Item_Negociacao__c item = new Item_Negociacao__c(
-            Negociacao__c = negotiationId, Produto__c = productId, Quantidade__c = quantity, Preco_Unitario__c = price
+            Negociacao__c = negotiationId, Produto__c = productId, Quantidade__c = quantity,
+            Preco_Unitario__c = entry.UnitPrice
         );
         insert item;
         return item;
     }
 
-    /** Negociacao Rascunho com N itens (produtos distintos da lista, quantidade 1, preco 100). */
+    /** Negociacao Rascunho com N itens distintos, precificados pelo catalogo da oportunidade. */
     public static Negociacao_Comercial__c createNegotiationWithItems(Id opportunityId, Decimal percent, String justification,
                                                                      List<Product2> products, Integer itemCount) {
         Negociacao_Comercial__c n = createNegotiation(opportunityId, percent, justification);
+        Opportunity opportunity = [SELECT Pricebook2Id FROM Opportunity WHERE Id = :opportunityId];
+        Id pricebookId = TrainingNegotiationService.resolvePricebookId(opportunity.Pricebook2Id);
+        Set<Id> productIds = new Set<Id>();
+        for (Integer i = 0; i < itemCount; i++) {
+            productIds.add(products[i].Id);
+        }
+        Map<Id, PricebookEntry> entriesByProduct = new Map<Id, PricebookEntry>();
+        for (PricebookEntry entry : [
+            SELECT Product2Id, UnitPrice FROM PricebookEntry
+            WHERE Pricebook2Id = :pricebookId AND Product2Id IN :productIds
+                AND IsActive = true AND Product2.IsActive = true
+        ]) {
+            entriesByProduct.put(entry.Product2Id, entry);
+        }
         List<Item_Negociacao__c> items = new List<Item_Negociacao__c>();
         for (Integer i = 0; i < itemCount; i++) {
-            items.add(new Item_Negociacao__c(Negociacao__c = n.Id, Produto__c = products[i].Id, Quantidade__c = 1, Preco_Unitario__c = 100));
+            items.add(new Item_Negociacao__c(
+                Negociacao__c = n.Id, Produto__c = products[i].Id, Quantidade__c = 1,
+                Preco_Unitario__c = entriesByProduct.get(products[i].Id).UnitPrice
+            ));
         }
         insert items;
         return n;

@@ -43,7 +43,11 @@ public with sharing class TrainingNegotiationItemHandler {
     }
 
     private static Map<Id, Negociacao_Comercial__c> loadParents(Set<Id> ids) {
-        return new Map<Id, Negociacao_Comercial__c>([SELECT Id, Status__c FROM Negociacao_Comercial__c WHERE Id IN :ids]);
+        return new Map<Id, Negociacao_Comercial__c>([
+            SELECT Id, Status__c, Opportunity__r.Pricebook2Id
+            FROM Negociacao_Comercial__c
+            WHERE Id IN :ids
+        ]);
     }
 
     private static Boolean isLocked(Negociacao_Comercial__c parent) {
@@ -58,6 +62,46 @@ public with sharing class TrainingNegotiationItemHandler {
         Set<Id> parents = parentIds(items, oldMap);
         Map<Id, Negociacao_Comercial__c> parentMap = loadParents(parents);
 
+        Map<Id, Id> pricebookByParent = new Map<Id, Id>();
+        Boolean needsStandardPricebook = false;
+        for (Id parentId : parents) {
+            Negociacao_Comercial__c parent = parentMap.get(parentId);
+            Id pricebookId = parent == null || parent.Opportunity__r == null
+                ? null : parent.Opportunity__r.Pricebook2Id;
+            if (pricebookId == null) {
+                needsStandardPricebook = true;
+            } else {
+                pricebookByParent.put(parentId, pricebookId);
+            }
+        }
+        if (needsStandardPricebook) {
+            Id standardPricebookId = TrainingNegotiationService.resolvePricebookId(null);
+            for (Id parentId : parents) {
+                if (!pricebookByParent.containsKey(parentId)) {
+                    pricebookByParent.put(parentId, standardPricebookId);
+                }
+            }
+        }
+
+        Set<Id> productIds = new Set<Id>();
+        for (Item_Negociacao__c item : items) {
+            if (item.Produto__c != null) {
+                productIds.add(item.Produto__c);
+            }
+        }
+        Set<Id> pricebookIds = new Set<Id>(pricebookByParent.values());
+        Map<String, PricebookEntry> catalogEntries = new Map<String, PricebookEntry>();
+        if (!productIds.isEmpty() && !pricebookIds.isEmpty()) {
+            for (PricebookEntry entry : [
+                SELECT Id, Pricebook2Id, Product2Id, UnitPrice
+                FROM PricebookEntry
+                WHERE Pricebook2Id IN :pricebookIds AND Product2Id IN :productIds
+                    AND IsActive = true AND Product2.IsActive = true
+            ]) {
+                catalogEntries.put(priceKey(entry.Pricebook2Id, entry.Product2Id), entry);
+            }
+        }
+
         Map<String, Id> existing = new Map<String, Id>();
         for (Item_Negociacao__c e : [
             SELECT Id, Negociacao__c, Produto__c FROM Item_Negociacao__c WHERE Negociacao__c IN :parents AND Produto__c != null
@@ -68,7 +112,7 @@ public with sharing class TrainingNegotiationItemHandler {
         Set<String> seen = new Set<String>();
         for (Item_Negociacao__c item : items) {
             Item_Negociacao__c old = oldMap == null ? null : oldMap.get(item.Id);
-            String error = validate(item, old, parentMap, existing, seen);
+            String error = validate(item, old, parentMap, pricebookByParent, catalogEntries, existing, seen);
             if (error != null) {
                 item.addError(error);
             }
@@ -76,6 +120,7 @@ public with sharing class TrainingNegotiationItemHandler {
     }
 
     private static String validate(Item_Negociacao__c item, Item_Negociacao__c old, Map<Id, Negociacao_Comercial__c> parentMap,
+                                   Map<Id, Id> pricebookByParent, Map<String, PricebookEntry> catalogEntries,
                                    Map<String, Id> existing, Set<String> seen) {
         String locked = 'Itens só podem ser incluídos, alterados ou excluídos enquanto a negociação está em Rascunho.';
         if (isLocked(parentMap.get(item.Negociacao__c))) {
@@ -99,8 +144,21 @@ public with sharing class TrainingNegotiationItemHandler {
         if ((other != null && other != item.Id) || !seen.add(k)) {
             return 'Produto duplicado: o mesmo produto não pode aparecer duas vezes na negociação.';
         }
+        Id pricebookId = pricebookByParent.get(item.Negociacao__c);
+        PricebookEntry entry = pricebookId == null
+            ? null : catalogEntries.get(priceKey(pricebookId, item.Produto__c));
+        if (entry == null) {
+            return 'O produto precisa ter uma entrada ativa no Pricebook da oportunidade.';
+        }
+        if (item.Preco_Unitario__c != entry.UnitPrice) {
+            return 'O preço unitário deve corresponder ao preço do catálogo ativo da oportunidade.';
+        }
         item.Subtotal__c = (item.Quantidade__c * item.Preco_Unitario__c).setScale(2, RoundingMode.HALF_UP);
         return null;
+    }
+
+    private static String priceKey(Id pricebookId, Id productId) {
+        return String.valueOf(pricebookId) + '|' + String.valueOf(productId);
     }
 
     private static void validateDelete(List<Item_Negociacao__c> items) {

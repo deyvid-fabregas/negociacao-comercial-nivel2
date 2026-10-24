@@ -34,10 +34,14 @@ private class TrainingOrderServiceTest {
         System.assertEquals(Test.getStandardPricebookId(), order.Pricebook2Id);
         System.assertEquals(String.valueOf(n.Id), order.Negociacao_Origem_Id__c);
         System.assertEquals(opp.Id, order.Oportunidade_Origem__c);
-        List<OrderItem> orderItems = [SELECT Quantity, UnitPrice FROM OrderItem WHERE OrderId = :order.Id];
+        List<OrderItem> orderItems = [
+            SELECT Quantity, UnitPrice FROM OrderItem WHERE OrderId = :order.Id ORDER BY UnitPrice
+        ];
         System.assertEquals(3, orderItems.size());
-        for (OrderItem oi : orderItems) {
-            System.assertEquals(96.00, oi.UnitPrice, '100,00 com 4% de desconto');
+        List<Decimal> expectedPrices = new List<Decimal>{ 96.00, 96.96, 97.92 };
+        for (Integer i = 0; i < orderItems.size(); i++) {
+            OrderItem oi = orderItems[i];
+            System.assertEquals(expectedPrices[i], oi.UnitPrice, 'Preço do catálogo com 4% de desconto');
             System.assertEquals(1, oi.Quantity);
         }
     }

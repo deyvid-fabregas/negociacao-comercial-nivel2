@@ -44,6 +44,12 @@
 
 Os roteiros acima foram executados por Execute Anonymous e os resultados foram observados no log da org. A verificação visual da FlexiPage continua pendente no Lightning App Builder.
 
+### Revalidação da integridade de preços (24/10/2026)
+
+- O handler de itens agora exige uma entrada ativa do Pricebook da Opportunity e rejeita preço unitário divergente em DML direto.
+- Validação Salesforce em modo `check-only`: **41 testes executados, 0 falhas** (`TrainingNegotiationTriggerTest`, `TrainingNegotiationServiceTest`, `TrainingApprovalServiceTest` e `TrainingOrderServiceTest`).
+- Esta validação não implantou as alterações na org. A correção permanece local até um deploy posterior.
+
 ## Apex
 ```bash
 sf apex run test --test-level RunLocalTests --code-coverage --result-format human --wait 30 --target-org minha_nova_org
