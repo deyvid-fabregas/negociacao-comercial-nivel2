@@ -120,6 +120,8 @@ itens chegava vazia ao Apex ("Adicione ao menos um produto à negociação."). T
 | Rascunho | ![](evidencias/09-rascunho.png) |
 | Pendente, Diretor (20%) | ![](evidencias/10-pendente-diretor-20pct.png) |
 | Pendente, Financeiro (25%) | ![](evidencias/11-pendente-financeiro-25pct.png) |
+| Cancelada (NEG-0010), sem botões de ação | ![](evidencias/12-cancelada.png) |
+| Task de aprovação fechada (Completed) ao cancelar | ![](evidencias/13-task-concluida-apos-cancelar.png) |
 
 ## Evidências a anexar na entrega
 - [ ] Execução dos testes Apex + cobertura
